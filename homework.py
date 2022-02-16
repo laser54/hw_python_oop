@@ -1,6 +1,8 @@
 from typing import Dict, List, Type
+from dataclasses import dataclass
 
 
+@dataclass
 class InfoMessage:
     """Информационное сообщение о тренировке."""
 
@@ -10,17 +12,6 @@ class InfoMessage:
     speed: float
     calories: float
 
-    def __init__(self,
-                 training_type,
-                 duration,
-                 distance,
-                 speed,
-                 calories) -> None:
-        self.training_type = training_type
-        self.duration = duration
-        self.distance = distance
-        self.speed = speed
-        self.calories = calories
 
     def get_message(self) -> str:
         return(f'Тип тренировки: {self.training_type}; '
@@ -58,12 +49,12 @@ class Training:
 
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
-        pass
+        raise NotImplementedError('Метод get_spent_calories'
+                                  f'не опредлен в {self.__class__.__name__}')
 
     def show_training_info(self) -> InfoMessage:
         """Вернуть информационное сообщение о выполненной тренировке."""
-        training_type = self.__class__.__name__
-        return InfoMessage(training_type,
+        return InfoMessage(self.__class__.__name__,
                            self.duration,
                            self.get_distance(),
                            self.get_mean_speed(),
@@ -76,19 +67,11 @@ class Running(Training):
     COEFF_CALORIE_1 = 18
     COEFF_CALORIE_2 = 20
 
-    def __init__(self,
-                 action: int,
-                 duration: float,
-                 weight: float
-                 ) -> None:
-        super().__init__(action, duration, weight)
-
     def get_spent_calories(self) -> float:
         """Расчет калорий при беге."""
 
-        mean_speed = self.get_mean_speed()
         duration_min = self.duration * self.MIN_IN_HOUR
-        return ((self.COEFF_CALORIE_1 * mean_speed
+        return ((self.COEFF_CALORIE_1 * self.get_mean_speed()
                 - self.COEFF_CALORIE_2) * self.weight
                 / self.M_IN_KM * duration_min)
 
